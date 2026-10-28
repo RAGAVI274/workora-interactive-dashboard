@@ -133,8 +133,23 @@ churn_f = churn_f[
 ]
 # The A/B dataset may cover a different period; if selected dates exclude it all,
 # show its full data rather than misleadingly reporting zero revenue.
+
+# ----- A/B testing date filter -----
+ab_f = ab.copy()
+
+ab_f["Timestamp"] = pd.to_datetime(
+    ab_f["Timestamp"], errors="coerce"
+)
+
+ab_f = ab_f[
+    ab_f["Timestamp"].dt.date.between(start_date, end_date)
+]
+
+# If the selected date range has no A/B test records,
+# use the complete A/B testing dataset.
 if ab_f.empty:
     ab_f = ab.copy()
+
 
 # ----- KPI cards -----
 st.subheader("📌 Key Performance Indicators")
