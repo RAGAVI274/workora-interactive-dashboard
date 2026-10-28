@@ -112,15 +112,24 @@ if selected_sources:
 else:
     traffic_f = traffic_f.iloc[0:0]
 
-churn_f = churn.copy()
-if selected_regions:
-    churn_f = churn_f[churn_f["Region"].astype(str).isin(selected_regions)]
-else:
-    churn_f = churn_f.iloc[0:0]
 
-ab_f = ab.copy()
-ab_f = ab_f[
-    ab_f["Timestamp"].dt.date.between(start_date, end_date)
+# ----- Customer churn filters -----
+churn_f = churn.copy()
+
+# Use the region values that actually exist in the churn dataset.
+churn_regions = sorted(
+    churn["Region"].dropna().astype(str).unique().tolist()
+)
+
+selected_churn_regions = st.sidebar.multiselect(
+    "Customer Churn Region",
+    options=churn_regions,
+    default=churn_regions,
+    key="customer_churn_regions",
+)
+
+churn_f = churn_f[
+    churn_f["Region"].astype(str).isin(selected_churn_regions)
 ]
 # The A/B dataset may cover a different period; if selected dates exclude it all,
 # show its full data rather than misleadingly reporting zero revenue.
